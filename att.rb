@@ -2,7 +2,6 @@ require 'rubygems'
 require 'httparty'
 require 'uri'
 require 'yajl/json_gem'
-require 'pry'
 
 class Att
    include HTTParty
