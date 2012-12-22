@@ -22,15 +22,8 @@ class WebrtcPhone < Sinatra::Base
   
   use OmniAuth::Builder do
     provider :facebook, (ENV['FACEBOOK_CLIENT_ID']||'290594154312564'),(ENV['FACEBOOK_CLIENT_SECRET']||'a26bcf9d7e254db82566f31c9d72c94e')
-    provider :att, ENV['ATT_CLIENT_ID'], ENV['ATT_CLIENT_SECRET'], :site=>ENV['ATT_BASE_DOMAIN'], :callback_url => "http://localhost:5900/users/auth/att/callback", :scope=>"profile,webrtc"
+    provider :att, ENV['ATT_CLIENT_ID'], ENV['ATT_CLIENT_SECRET'], :site=>ENV['ATT_BASE_DOMAIN'], :callback_url => ENV['ATT_REDIRECT_URI'], :scope=>"profile,webrtc"
   end
-  
-  ATT = Att.new({
-    :client_id      => (ENV['ATT_CLIENT_ID']      || '789b0629cd077880581442abc917ead5'),
-    :client_secret  => (ENV['ATT_CLIENT_SECRET']  || '005e25e83c5e1f12'),
-    :redirect_uri   => (ENV['ATT_REDIRECRT_URI']  || 'http://localhost:5900/users/auth/att/callback')
-  })
-
 
   get "/" do
     erb "<div class='well'><a href='/auth/att' class='btn btn-primary'>Login</a></div>", :layout=>:layout
