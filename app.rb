@@ -4,10 +4,10 @@
 $stdout.sync = true
 Bundler.setup
 require 'sinatra'
-require "sinatra/reloader" #if development?
+require "sinatra/reloader" if ENV['RACK_ENV']=='development'
 require "redis"
 require 'yajl/json_gem'
-# require 'pry' #if development?
+require 'pry' if ENV['RACK_ENV']=='development'
 require 'omniauth-att'
 require 'omniauth-facebook'
 
@@ -26,15 +26,18 @@ class WebrtcPhone < Sinatra::Base
   end
 
   get "/" do
-    erb "<div class='well'><a href='/auth/att' class='btn btn-primary'>Login</a></div>", :layout=>:layout
+    erb "<div class='input-block-level form-signin'><a href='/auth/att' class='btn btn-primary input-block-level' >Login</a></div>", :layout=>:layout
   end
 
   get '/auth/:provider/callback' do
     @access_token = request.env['omniauth.auth']['credentials']['token']
     response.set_cookie("access_token", @access_token)
+    session[:username] = request.env['omniauth.auth']['info']['name']
     session[:uid]=request.env['omniauth.auth']['uid']
-    response.set_cookie("phone_number", request.env['omniauth.auth']['conference_number'])
-    session[:refresh_token]=request.env['omniauth.auth']['credentials']['refresh_token']
+    phone_number = request.env['omniauth.auth']['extra']['raw_info']['conference_number'] || request.env['omniauth.auth']['extra']['raw_info']['phone_number']
+    session[:phone_number]=phone_number
+    response.set_cookie("phone_number", phone_number)
+    session[:refresh_token] = request.env['omniauth.auth']['credentials']['refresh_token']
     redirect "/phone"
     # erb "<h1>#{params[:provider]}</h1>
     #      <pre>#{JSON.pretty_generate(request.env['omniauth.auth'])}</pre>", :layout=>:layout
