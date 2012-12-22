@@ -8,6 +8,8 @@ require "sinatra/reloader" #if development?
 require "redis"
 require 'yajl/json_gem'
 require 'pry' #if development?
+require 'omniauth-att'
+require 'omniauth-facebook'
 
 require File.dirname(__FILE__)+"/att.rb"
 redis = Redis.new # works with local redis server
@@ -18,10 +20,10 @@ puts "Redis Client Created"
 class WebrtcPhone < Sinatra::Base
   use Rack::Session::Cookie
   
-  # use OmniAuth::Builder do
-  #   provider :facebook, (ENV['FACEBOOK_CLIENT_ID']||'290594154312564'),(ENV['FACEBOOK_CLIENT_SECRET']||'a26bcf9d7e254db82566f31c9d72c94e')
-  #   provider :att, ENV['ATT_CLIENT_ID'], ENV['ATT_CLIENT_SECRET'], :site=>ENV['ATT_BASE_DOMAIN'], :callback_url => "http://localhost:5900/users/auth/att/callback", :scope=>"profile,webrtc"
-  # end
+  use OmniAuth::Builder do
+    provider :facebook, (ENV['FACEBOOK_CLIENT_ID']||'290594154312564'),(ENV['FACEBOOK_CLIENT_SECRET']||'a26bcf9d7e254db82566f31c9d72c94e')
+    provider :att, ENV['ATT_CLIENT_ID'], ENV['ATT_CLIENT_SECRET'], :site=>ENV['ATT_BASE_DOMAIN'], :callback_url => "http://localhost:5900/users/auth/att/callback", :scope=>"profile,webrtc"
+  end
   
   ATT = Att.new({
     :client_id      => (ENV['ATT_CLIENT_ID']      || '789b0629cd077880581442abc917ead5'),
@@ -37,10 +39,14 @@ class WebrtcPhone < Sinatra::Base
     erb :phone
   end
 
-  get '/authorize' do
-     auth_url = ATT.authorize_url('webrtc')
-     "<hr><a href='#{auth_url}'>#{auth_url}</a><hr>"
+
+
+  get '/auth/:provider/callback' do
+    @access_token = request.env['omniauth.auth']['credentials']['token']
+    erb "<h1>#{params[:provider]}</h1>
+         <pre>#{JSON.pretty_generate(request.env['omniauth.auth'])}</pre>", :layout=>:layout
   end
+  
 
   # Receive the oauth callback, and exchange the code for an access token
   get '/users/auth/att/callback' do

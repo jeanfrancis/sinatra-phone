@@ -8,6 +8,7 @@ gem 'puma'
 gem 'httparty'
 gem "yajl-ruby", :require=>'yajl/json_gem'
 gem 'omniauth-att', :require=>'omniauth-att',  :git => 'https://github.com/att-innovate/omniauth-att'
+gem 'omniauth-facebook'
 
 group :development do
   gem "pry"
