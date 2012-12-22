@@ -7,7 +7,7 @@ require 'sinatra'
 require "sinatra/reloader" #if development?
 require "redis"
 require 'yajl/json_gem'
-require 'pry' #if development?
+# require 'pry' #if development?
 require 'omniauth-att'
 require 'omniauth-facebook'
 
