@@ -31,44 +31,39 @@ class WebrtcPhone < Sinatra::Base
     :redirect_uri   => (ENV['ATT_REDIRECRT_URI']  || 'http://localhost:5900/users/auth/att/callback')
   })
 
+
   get "/" do
-    erb "<div class='well'><a href='#{ATT.authorize_url('webrtc,profile,messages,geo,locker,addressbook')}' class='btn btn-primary'>Login</a></div>", :layout=>:layout
+    erb "<div class='well'><a href='/auth/att' class='btn btn-primary'>Login</a></div>", :layout=>:layout
   end
-
-  get "/phone" do
-    erb :phone
-  end
-
-
 
   get '/auth/:provider/callback' do
     @access_token = request.env['omniauth.auth']['credentials']['token']
-    erb "<h1>#{params[:provider]}</h1>
-         <pre>#{JSON.pretty_generate(request.env['omniauth.auth'])}</pre>", :layout=>:layout
+    response.set_cookie("access_token", @access_token)
+    session[:uid]=request.env['omniauth.auth']['uid']
+    response.set_cookie("phone_number", request.env['omniauth.auth']['conference_number'])
+    session[:refresh_token]=request.env['omniauth.auth']['credentials']['refresh_token']
+    redirect "/phone"
+    # erb "<h1>#{params[:provider]}</h1>
+    #      <pre>#{JSON.pretty_generate(request.env['omniauth.auth'])}</pre>", :layout=>:layout
   end
   
-
-  # Receive the oauth callback, and exchange the code for an access token
-  get '/users/auth/att/callback' do
-    if params[:code]
-      access_token = ATT.exchnage_code_for_access_token(params[:code])
-      response.set_cookie('access_token', access_token )
-      "access_token = #{access_token}"
-    else
-      raise 400, "#{params[:error]} : #{params[:error_reason]}"
-    end
+  get "/phone" do
+    erb :phone
   end
-
-
-  #Generic 404 event handler... instead of sending HTML page
-  not_found do
-  	'This is nowhere to be found.'
-  end
-  # error 500 do
-  #   'You made me bleed 500 sucker'
-  # end
-  # error do
-  #   'You aint my friend, Palooka. '
-  # end
+  
+    # 
+    # get "/authorize" do
+    #   erb "<div class='well'><a href='#{ATT.authorize_url('webrtc,profile,messages,geo,locker,addressbook')}' class='btn btn-primary'>Login</a></div>", :layout=>:layout
+    # end
+    # # Receive the oauth callback, and exchange the code for an access token
+    # get '/authorized' do
+    #   if params[:code]
+    #     access_token = ATT.exchnage_code_for_access_token(params[:code])
+    #     response.set_cookie('access_token', access_token )
+    #     "access_token = #{access_token}"
+    #   else
+    #     raise 400, "#{params[:error]} : #{params[:error_reason]}"
+    #   end
+    # end
   
 end
