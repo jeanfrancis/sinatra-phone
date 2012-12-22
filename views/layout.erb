@@ -1,11 +1,10 @@
 <html>
   <head>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/bootswatch/2.1.1/spacelab/bootstrap.min.css" rel="stylesheet">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
     <script src="/jquery.phono-webrtc.js"></script>
-    <link href="//netdna.bootstrapcdn.com/bootswatch/2.1.1/spacelab/bootstrap.min.css" rel="stylesheet">
-    <link href="//netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css" rel="stylesheet">
-    <script src="//jquery.cookies.2.2.0.min.js" type="text/javascript"></script>
-
+    
     <style type="text/css">
       body {
         padding-top: 40px;
@@ -49,5 +48,17 @@
       </div>
           
       </div> <!-- /container -->
+
+      <script id="myscript" type="text/javascript">
+        // async load some libraries so that the ui can load, withouth requiring the whole js download first
+        (function() {
+         // var myscript = document.createElement('script');
+         // myscript.type = 'text/javascript';
+         // myscript.src = ('/jquery.min.js');
+         // var s = document.getElementsByTagName('script')[0]; 
+         // s.parentNode.insertBefore(myscript, s);
+         // console.log(myscript.src);         
+        })();
+      </script>
 
   </body>

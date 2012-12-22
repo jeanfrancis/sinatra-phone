@@ -1,0 +1,25 @@
+<script type="text/javascript" charset="utf-8">
+  // This is a intermediate page where we setup some local storage objects for use later
+  // and so that we do not have to pass so much session state back and forth to server on each request.
+  if(typeof(Storage)!=="undefined"){
+    var current_user = <%=  @current_user.to_json  %>;
+    localStorage.current_user  = JSON.stringify(current_user);
+    localStorage.access_token  = "<%= @access_token %>";
+    localStorage.refresh_token = "<%= @refresh_token %>";
+    localStorage.uid           = "<%= session[:uid] %>";
+    localStorage.username      = "<%=  @current_user['info']['name'] %>";
+    localStorage.phone_number  = "<%=  session[:phone_number] %>";
+
+    // console.log('current_user', JSON.parse(localStorage.current_user) );
+
+  }  
+  // Ones set, send the user onward to the real destination that has the ui that will make use of the localstorage set here.
+  // Uncomment below to automaticly load and register the phone
+   window.location = "/phone"
+  
+</script>
+<div class='input-block-level form-signin'>
+  <h2><%= @current_user['info']['name'] %></h2>
+  <h4>Authenticated<h4>
+  <a href="/phone" class='btn btn-large btn-primary'>Open Phone</a>
+</div>

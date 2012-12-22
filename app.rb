@@ -4,6 +4,7 @@
 $stdout.sync = true
 Bundler.setup
 require 'sinatra'
+require "sinatra/cookies"
 require "sinatra/reloader" if ENV['RACK_ENV']=='development'
 require "redis"
 require 'yajl/json_gem'
@@ -18,29 +19,40 @@ set :show_exceptions, false
 puts "Redis Client Created"
 
 class WebrtcPhone < Sinatra::Base
-  use Rack::Session::Cookie
-  
-  use OmniAuth::Builder do
-    provider :facebook, (ENV['FACEBOOK_CLIENT_ID']||'290594154312564'),(ENV['FACEBOOK_CLIENT_SECRET']||'a26bcf9d7e254db82566f31c9d72c94e')
-    provider :att, ENV['ATT_CLIENT_ID'], ENV['ATT_CLIENT_SECRET'], :site=>ENV['ATT_BASE_DOMAIN'], :callback_url => ENV['ATT_REDIRECT_URI'], :scope=>"profile,webrtc"
+  helpers Sinatra::Cookies
+  configure do
+    disable :protection
+    set :layout, :layout
+    use Rack::Session::Cookie, :key => 'sinatra-webrtc',
+                               :path => '/',
+                               :expire_after => 14400, # In seconds
+                               :secret => 'some-random-s3cr3t-string'
+     use OmniAuth::Builder do
+       # provider :facebook, (ENV['FACEBOOK_CLIENT_ID']||'290594154312564'),(ENV['FACEBOOK_CLIENT_SECRET']||'a26bcf9d7e254db82566f31c9d72c94e')
+       provider :att, ENV['ATT_CLIENT_ID'], ENV['ATT_CLIENT_SECRET'], :site=>ENV['ATT_BASE_DOMAIN'], :callback_url => ENV['ATT_REDIRECT_URI'], :scope=>"profile,webrtc"
+     end
+  end
+  configure :development do
+    register Sinatra::Reloader
   end
 
+
   get "/" do
-    erb "<div class='input-block-level form-signin'><a href='/auth/att' class='btn btn-primary input-block-level' >Login</a></div>", :layout=>:layout
+    erb "<div class='input-block-level form-signin'><a href='/auth/att' class='btn btn-primary btn-large input-block-level' >Login</a></div>", :layout=>:layout
   end
 
   get '/auth/:provider/callback' do
-    @access_token = request.env['omniauth.auth']['credentials']['token']
-    response.set_cookie("access_token", @access_token)
-    session[:username] = request.env['omniauth.auth']['info']['name']
-    session[:uid]=request.env['omniauth.auth']['uid']
-    phone_number = request.env['omniauth.auth']['extra']['raw_info']['conference_number'] || request.env['omniauth.auth']['extra']['raw_info']['phone_number']
-    session[:phone_number]=phone_number
-    response.set_cookie("phone_number", phone_number)
-    session[:refresh_token] = request.env['omniauth.auth']['credentials']['refresh_token']
-    redirect "/phone"
-    # erb "<h1>#{params[:provider]}</h1>
-    #      <pre>#{JSON.pretty_generate(request.env['omniauth.auth'])}</pre>", :layout=>:layout
+    @access_token   = request.env['omniauth.auth']['credentials']['token']
+    @refresh_token  = request.env['omniauth.auth']['credentials']['refresh_token']
+    @current_user   = request.env['omniauth.auth']
+    session[:uid]   = request.env['omniauth.auth']['uid']  # store thhe uid in the session so we can correlate server and client session if needed
+    session[:phone_number] = @current_user['extra']['raw_info']['conference_number'] || @current_user['extra']['raw_info']['phone_number']
+    # uncomment below if you prefer to store this information in cookies instead of localstorage
+    # response.set_cookie("phone_number",  {:value => session[:phone_number], :path=>"/phone"})
+    # response.set_cookie("access_token",  {:value => @access_token, :path=>"/phone"})
+    # response.set_cookie("refresh_token", {:value => @refresh_token, :expiration => Time.now.to_i + 94608000, :path=>"/phone"})
+    erb :authorized
+    # redirect "/phone"  # uncomment this and remove obove erb line if you prefer to redirect straight to your target destination
   end
   
   get "/phone" do
