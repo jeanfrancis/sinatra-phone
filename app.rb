@@ -11,6 +11,7 @@ require 'yajl/json_gem'
 require 'pry' if ENV['RACK_ENV']=='development'
 require 'omniauth-att'
 require 'omniauth-facebook'
+require 'net/http'
 
 require File.dirname(__FILE__)+"/att.rb"
 redis = Redis.new # works with local redis server
@@ -57,6 +58,20 @@ class WebrtcPhone < Sinatra::Base
   
   get "/phone" do
     erb :phone
+  end
+  
+  # to select a specific version
+  get "/phone/v:version" do
+    erb "phone_v#{params[:version]}"
+  end
+  
+  #  proxy path to avoid cross origin issues
+  post "/proxy" do
+    uri = URI.parse(params[:url])
+    response = Net::HTTP.post_form(uri, {})
+    status response.code
+    #TODO headers = response.headers
+    response.body.to_s
   end
   
     # 

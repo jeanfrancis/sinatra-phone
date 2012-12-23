@@ -15,11 +15,16 @@
   }  
   // Ones set, send the user onward to the real destination that has the ui that will make use of the localstorage set here.
   // Uncomment below to automaticly load and register the phone
-   window.location = "/phone"
+   // window.location = "/phone"
   
 </script>
 <div class='input-block-level form-signin'>
   <h2><%= @current_user['info']['name'] %></h2>
-  <h4>Authenticated<h4>
-  <a href="/phone" class='btn btn-large btn-primary'>Open Phone</a>
+  <h4><%=  session[:phone_number] %></h4>
+  <p>You have succesfully authenticated, and have stored your information in the browsers local storage for later use.</p>
+  <a href="/phone" class='btn btn-large btn-primary input-block-level'>Phone</a>
+  <!-- <br>
+  <a href="/phone/v2" class='btn btn-large btn-primary input-block-level'>Open a2 Phone</a>
+  <br>
+  <a href="/phone/v3" class='btn btn-large btn-primary input-block-level'>Open a3 Phone</a> -->
 </div>
