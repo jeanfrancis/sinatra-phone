@@ -5,19 +5,14 @@ $stdout.sync = true
 Bundler.setup
 require 'sinatra'
 require "sinatra/cookies"
-require "sinatra/reloader" if ENV['RACK_ENV']=='development'
-require "redis"
+require "sinatra/reloader"  if ENV['RACK_ENV']=='development'
 require 'yajl/json_gem'
-require 'pry' if ENV['RACK_ENV']=='development'
+require 'pry'               if ENV['RACK_ENV']=='development'
 require 'omniauth-att'
 require 'omniauth-facebook'
 require 'net/http'
 
 require File.dirname(__FILE__)+"/att.rb"
-redis = Redis.new # works with local redis server
-set :raise_errors, Proc.new { false }
-set :show_exceptions, false
-puts "Redis Client Created"
 
 class WebrtcPhone < Sinatra::Base
   helpers Sinatra::Cookies
@@ -48,12 +43,7 @@ class WebrtcPhone < Sinatra::Base
     @current_user   = request.env['omniauth.auth']
     session[:uid]   = request.env['omniauth.auth']['uid']  # store thhe uid in the session so we can correlate server and client session if needed
     session[:phone_number] = @current_user['extra']['raw_info']['conference_number'] || @current_user['extra']['raw_info']['phone_number']
-    # uncomment below if you prefer to store this information in cookies instead of localstorage
-    # response.set_cookie("phone_number",  {:value => session[:phone_number], :path=>"/phone"})
-    # response.set_cookie("access_token",  {:value => @access_token, :path=>"/phone"})
-    # response.set_cookie("refresh_token", {:value => @refresh_token, :expiration => Time.now.to_i + 94608000, :path=>"/phone"})
     erb :authorized
-    # redirect "/phone"  # uncomment this and remove obove erb line if you prefer to redirect straight to your target destination
   end
   
   get "/phone" do
@@ -62,7 +52,7 @@ class WebrtcPhone < Sinatra::Base
   
   # to select a specific version
   get "/phone/v:version" do
-    erb "phone_v#{params[:version]}"
+    erb "phone_v#{params[:version]}".to_sym, :layout=>"layout_v#{params[:version]}".to_sym
   end
   
   #  proxy path to avoid cross origin issues
