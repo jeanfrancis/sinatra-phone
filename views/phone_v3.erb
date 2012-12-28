@@ -24,19 +24,24 @@
     $("#fromuser").html("from: "+ localStorage.username + " "+  localStorage.phone_number );
     phono = $.phono({
       apiKey: "7826110523f1241fcfd001859a67128d",
-      gateway: "gw.phono.com",
       connectionUrl: "http://gw.att.io:8080/http-bind",
-      webrtc: true,
+      phone: {
+            onIncomingCall: function(event) {
+              phono.call = event.call;
+              alert("Incoming call");
+            }
+      },
       onReady: function() {
         $("#call").attr("disabled", false);
         $("#status").html( 'ready' );
         $('#debuglist').append('<li>registered: <a href=sip:'+ phono.sessionId+'>sip:'+ phono.sessionId+'</a></li>');
-        binderURL = 'http://binder.api.tfoundry.com/session/'+your_number+'/'+phono.sessionId ;
+        binderURL = 'http://binder.api.tfoundry.com/session/'+localStorage.phone_number+'/'+phono.sessionId;
         $.ajax({
                 url:  binderURL,
                 // data: {url: 'http://gw.att.io:8080/http-bind/session/'+your_number+'/'+phono.sessionId},
                 type: "POST"
                 }).done(function(data, status) {
+                  console.log("Registerd " + binderURL);
                   $('#debuglist').append("<li>"+status+"</li>");
                   $('#debuglist').append("<li>"+data+"</li>");
                   $('#debuglist').append('<li>bound session to: '+ localStorage.phone_number +"</li>");
