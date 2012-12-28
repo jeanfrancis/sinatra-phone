@@ -1,0 +1,107 @@
+    <div class="container">
+      <div id='register'>
+        <form action="#phone" method="get" accept-charset="utf-8" class="form-signin form-horizontal">
+
+          <h2 class="form-signin-heading">Register</h2>
+          <h4 id='fromuser'></h4>
+          <label for="Number to Dial">If you want simultaneous ring, enter another 10-digit phone number</label>
+            <input type="text" name="simul_ring_tn" value="" id="simul_ring_tn" class="input-block-level" placeholder="" autofocus>
+          <button class="btn btn-large btn-primary input-block-level" type="submit" value="" id="registerBtn"  class="btn btn-large btn-primary">
+            <i class='icon-phone'></i> <span>Register</span>
+          </button>
+              
+        </form>
+      </div>
+      <div id='dialer'>
+        <form action="#phone" method="get" accept-charset="utf-8" class="form-signin form-horizontal">
+
+          <h2 class="form-signin-heading">Make A Call</h2>
+          <h4 id='fromuser'></h4>
+          <label for="Number to Dial">Number to Dial</label>
+            <input type="text" name="number_to_dial" value="1-800-444-4444" id="number_to_dial" class="input-block-level" placeholder="1-800-444-4444" autofocus>
+          <button class="btn btn-large btn-primary input-block-level" type="submit" value="registering..." id="call" disabled="true"  class="btn btn-large btn-primary">
+            <i class='icon-phone'></i> <span id="status">Registering...</span>
+          </button>
+              
+        </form>
+      </div>
+      <pre id='debuglog'>
+        <ol id='debuglist'></ol>
+      </pre>
+          
+    </div> <!-- /container -->
+    
+    
+<script type="text/javascript" charset="utf-8">
+  var phono;
+  $(document).ready(function(){
+    $("#dialer").hide();
+    $("#fromuser").html("from: "+ localStorage.username + " "+  localStorage.phone_number );
+    
+    $("#call").click(function(event) {
+      event.preventDefault();
+      $("#status").html("Dialing");
+      cb.setState('active');
+      phono.phone.dial('sip:'+$("#number_to_dial").val()+'@12.208.176.26', {
+        onRing: function() {
+          $("#status").html("Ringing");
+          cb.setState('incoming')
+          cb.setState('calling');
+        },
+        onAnswer: function() {
+          $("#status").html("Answered");
+          cb.setState('active');
+          $("#call").click(function() {phono.phone.hangup()} )
+        },
+        onHangup: function() {
+          console.log("Hangup");
+          $("#call").attr("disabled", false).val("Call");
+          $("#call").click(function() {phono.phone.hangup()} )
+              
+          $("#status").html(".");
+        }
+      });
+    });
+    $("#registerBtn").click(function(event){
+      event.preventDefault();
+      phono = $.phono({
+      apiKey: "7826110523f1241fcfd001859a67128d",
+      connectionUrl: "http://gw.att.io:8080/http-bind",
+      phone: {
+            onIncomingCall: function(event) {
+              phono.call = event.call;
+            }
+      },
+      onReady: function() {
+        $("#register").hide();
+        $("#dialer").show();
+        $("#call").attr("disabled", false);
+
+        $('#debuglist').append('<li>registered: <a href=sip:'+ phono.sessionId+'>sip:'+ phono.sessionId+'</a></li>');
+        binderURL = 'http://binder.api.tfoundry.com/session/'+localStorage.phone_number+'/'+phono.sessionId ;
+        if($("#simul_ring_tn").val().length>0)
+        {
+          binderURL=binderURL+'/'+ $("#simul_ring_tn").val()
+        }
+        $.ajax({
+                url:  binderURL,
+                // data: {url: 'http://gw.att.io:8080/http-bind/session/'+your_number+'/'+phono.sessionId},
+                type: "POST"
+                }).done(function(data, status) {
+                  console.log("Registerd " + binderURL);
+                  $('#debuglist').append("<li>"+status+"</li>");
+                  $('#debuglist').append("<li>"+data+"</li>");
+                  $('#debuglist').append('<li>bound session to: '+ localStorage.phone_number +"</li>");
+                  })
+              }
+      
+      })
+      $("#status").html( 'Dial' );
+      $('.result').ajaxError(function(event, request, settings){
+        $(this).append("<li>Error requesting page " + settings.url + "</li>");
+      });
+    
+    });
+  })
+
+</script>
