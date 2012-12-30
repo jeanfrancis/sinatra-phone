@@ -24,7 +24,6 @@ class WebrtcPhone < Sinatra::Base
                                :expire_after => 14400, # In seconds
                                :secret => 'some-random-s3cr3t-string'
      use OmniAuth::Builder do
-       # provider :facebook, (ENV['FACEBOOK_CLIENT_ID']||'290594154312564'),(ENV['FACEBOOK_CLIENT_SECRET']||'a26bcf9d7e254db82566f31c9d72c94e')
        provider :att, ENV['ATT_CLIENT_ID'], ENV['ATT_CLIENT_SECRET'], :site=>ENV['ATT_BASE_DOMAIN'], :callback_url => ENV['ATT_REDIRECT_URI'], :scope=>"profile,webrtc"
      end
   end
@@ -47,6 +46,7 @@ class WebrtcPhone < Sinatra::Base
   end
   
   get "/phone" do
+    @version=params[:version] || "a1"
     erb :phone
   end
   
