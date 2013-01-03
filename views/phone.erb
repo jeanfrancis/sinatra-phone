@@ -1,4 +1,4 @@
-    <div class="container">
+    <div class="container phonebox">
       <form action="#phone" method="get" accept-charset="utf-8" class="form-signin form-horizontal">
         <h2 class="form-signin-heading">Make A Call</h2>
         <h4 id='fromuser'></h4>
@@ -20,22 +20,22 @@
 
     var accessToken = localStorage['access_token'];
     var selfNumber = localStorage.phone_number;
-    var version = "a1";
-
     var att;
     var call;
     
     att = $.att({
-      version: version,
+      version: '<%= @version || 'a3' %>',
       apiKey: accessToken,
       onReady: function() {
+        $("#call").attr("disabled", false);
         console.log("att on ready...");
+        $('#debuglist').append('<li>registered: <a href=sip:'+ att.sessionId+'>sip:'+ att.sessionId+'</a></li>');
+        $('#status').html('ready');
       },
       onUnready: function() {
         console.log("att disconnected...");
       },
       
-
       // Phone API Configuration
       phone: {
         // Event Handlers
@@ -59,6 +59,71 @@
         }
       }  //phone
     }); //att
+    
+    
+    
+    
+    // register some call ui event handlers for dialing out.
+    $("#call").click(function(event) {
+      event.preventDefault();
+      $("#status").html("Dialing");
+      console.log($(this));
+      $(this).click(function(){att.phone.hangup()});
+      att.phone.dial($("#number_to_dial").val(), {
+        onRing: function() {
+          $("#status").html("Ringing");
+        },
+        onAnswer: function() {
+          $("#status").html("Answered");
+          $(".phonebox").addClass('active');
+          cb.setState('active');
+          $("#call").click(function() {att.phone.hangup()} )
+        },
+        onHangup: function() {
+          $("#call").attr("disabled", false).val("Call");
+          $(".phonebox").removeClass('active');
+          $("#status").html("ready");
+        }
+      });
+    });
+    
   
   }); //ready
-</script>
+  </script>
+
+
+
+
+
+  
+    
+  <script type="text/javascript" charset="utf-8">
+    
+    //     onReady: function() {
+    //  
+    //       $("#status").html( 'ready' );
+    //       $('#debuglist').append('<li>registered: <a href=sip:'+ att.sessionId+'>sip:'+ phono.sessionId+'</a></li>');
+    //       binderURL = 'http://binder.api.tfoundry.com/session/'+localStorage.phone_number+'/'+phono.sessionId;
+    //       $.ajax({
+    //               url:  binderURL,
+    //               // data: {url: 'http://gw.att.io:8080/http-bind/session/'+your_number+'/'+phono.sessionId},
+    //               type: "POST"
+    //               }).done(function(data, status) {
+    //                 console.log("Registerd " + binderURL);
+    //                 $('#debuglist').append("<li>"+status+"</li>");
+    //                 $('#debuglist').append("<li>"+data+"</li>");
+    //                 $('#debuglist').append('<li>bound session to: '+ localStorage.phone_number +"</li>");
+    //                 })
+    //             }
+    //   
+    //     })
+    // 
+    //   $('.result').ajaxError(function(event, request, settings){
+    //     $(this).append("<li>Error requesting page " + settings.url + "</li>");
+    //   });
+    // 
+    // 
+    // })
+  </script>
+  
+
