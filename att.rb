@@ -6,7 +6,7 @@ require 'yajl/json_gem'
 class Att
    include HTTParty
    base_uri(ENV['ATT_BASE_DOMAIN'] || "https://api.tfoundry.com/a1/oauth")
-   # base_uri("https://auth.tfoundry.com")
+   #base_uri("https://auth.tfoundry.com")
    headers('Content-Type'=>'application/json', 'Accept'=>'application/json')  #TODO: including these headers should not break things.  These headers are needed for BF api calls.
    debug_output
    format :json

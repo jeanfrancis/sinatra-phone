@@ -1,4 +1,4 @@
-    <div class="container phonebox">
+    <div class="container">
       <form action="#phone" method="get" accept-charset="utf-8" class="form-signin form-horizontal">
         <h2 class="form-signin-heading">Make A Call</h2>
         <h4 id='fromuser'></h4>
@@ -20,19 +20,16 @@
   var att;
   $(document).ready(function(){
 
-    var accessToken = localStorage.access_token;
+    var accessToken = localStorage['access_token'];
     var selfNumber = localStorage.phone_number;
-    var call;
-    var att;
     att = $.att({
       apiKey: accessToken,
-      version: '<%= @version %>',
       onReady: function() {
         $("#call").attr("disabled", false);
         $("#status").html( 'ready' );
         $('#debuglist').append('<li>registered: <a href=sip:'+ att.phone.sessionId+'>sip:'+ att.phone.sessionId+'</a></li>');
         $('#debuglist').append('<li>bound session to: '+ localStorage.phone_number +"</li>");
-        $('#status').html('ready');
+        console.log("att on ready...");
       },
       onUnready: function() {
         console.log("att disconnected...");
@@ -52,7 +49,6 @@
         }
       }  //phone
     }); //att
-
     window.candybar = new CandyBar({phone: att});
     candybar.render();
   }); //ready

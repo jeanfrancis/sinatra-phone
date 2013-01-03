@@ -54,9 +54,9 @@ class WebrtcPhone < Sinatra::Base
     erb :phone
   end
   
-  # to select a specific version
-  get "/phone/v:version" do
-    erb "phone_v#{params[:version]}".to_sym, :layout=>"layout_v#{params[:version]}".to_sym
+  get "/candybar" do
+    @version=params[:version] || "a3"
+    erb :candybar
   end
   
   #  proxy path to avoid cross origin issues
@@ -67,5 +67,5 @@ class WebrtcPhone < Sinatra::Base
     #TODO headers = response.headers
     response.body.to_s
   end
-  
+
 end
