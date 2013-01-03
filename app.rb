@@ -46,13 +46,13 @@ class WebrtcPhone < Sinatra::Base
   end
   
   get "/phone" do
-    @version=params[:version] || "a1"
+    @version=params[:version] || "a3"
     erb :phone
   end
   
-  # to select a specific version
-  get "/phone/v:version" do
-    erb "phone_v#{params[:version]}".to_sym, :layout=>"layout_v#{params[:version]}".to_sym
+  get "/candybar" do
+    @version=params[:version] || "a3"
+    erb :candybar
   end
   
   #  proxy path to avoid cross origin issues
@@ -63,20 +63,5 @@ class WebrtcPhone < Sinatra::Base
     #TODO headers = response.headers
     response.body.to_s
   end
-  
-    # 
-    # get "/authorize" do
-    #   erb "<div class='well'><a href='#{ATT.authorize_url('webrtc,profile,messages,geo,locker,addressbook')}' class='btn btn-primary'>Login</a></div>", :layout=>:layout
-    # end
-    # # Receive the oauth callback, and exchange the code for an access token
-    # get '/authorized' do
-    #   if params[:code]
-    #     access_token = ATT.exchnage_code_for_access_token(params[:code])
-    #     response.set_cookie('access_token', access_token )
-    #     "access_token = #{access_token}"
-    #   else
-    #     raise 400, "#{params[:error]} : #{params[:error_reason]}"
-    #   end
-    # end
-  
+ 
 end

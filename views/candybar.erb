@@ -1,0 +1,61 @@
+    <div class="container">
+      <form action="#phone" method="get" accept-charset="utf-8" class="form-signin form-horizontal">
+        <h2 class="form-signin-heading">Make A Call</h2>
+        <h4 id='fromuser'></h4>
+        <label for="Number to Dial">Number to Dial</label>
+          <input type="text" name="number_to_dial" value="1-800-444-4444" id="number_to_dial" class="input-block-level" placeholder="1-800-444-4444" autofocus>
+        <button class="btn btn-large btn-primary input-block-level" type="submit" value="registering..." id="call" disabled="true"  class="btn btn-large btn-primary">
+          <i class='icon-phone'></i> <span id="status">Registering...</span>
+        </button>
+            
+      </form>
+      <pre id='debuglog'>
+        <ol id='debuglist'></ol>
+      </pre>
+          
+    </div> <!-- /container -->
+    
+<script type="text/javascript" charset="utf-8">
+
+  var att;
+  $(document).ready(function(){
+
+    var accessToken = localStorage['access_token'];
+    var selfNumber = localStorage.phone_number;
+    att = $.att({
+      apiKey: accessToken,
+      onReady: function() {
+        $("#call").attr("disabled", false);
+        $("#status").html( 'ready' );
+        $('#debuglist').append('<li>registered: <a href=sip:'+ att.phone.sessionId+'>sip:'+ att.phone.sessionId+'</a></li>');
+        $('#debuglist').append('<li>bound session to: '+ localStorage.phone_number +"</li>");
+        console.log("att on ready...");
+      },
+      onUnready: function() {
+        console.log("att disconnected...");
+      },
+      
+      // Phone API Configuration
+      phone: {
+        // Event Handlers
+        onIncomingCall: function(call) {
+          window.activeCall = call;
+          console.log("Incoming Call: " + call.id);
+          // Prepare to answer the call
+          toAnswerState();
+        },
+        onError: function(event) {
+          console.log("Phone error: " + e.reason);
+        }
+      }  //phone
+    }); //att
+    window.candybar = new CandyBar({phone: att});
+    candybar.render();
+  }); //ready
+
+  $("#call").click(function(event) {
+    event.preventDefault();
+    $("#status").html("Dialing");
+    att.phone.dial($("#number_to_dial").val());
+  });
+</script>
