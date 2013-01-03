@@ -11,6 +11,8 @@ require 'pry'               if ENV['RACK_ENV']=='development'
 require 'omniauth-att'
 require 'omniauth-facebook'
 require 'net/http'
+require 'att'
+
 
 require File.dirname(__FILE__)+"/att.rb"
 
@@ -33,7 +35,9 @@ class WebrtcPhone < Sinatra::Base
 
 
   get "/" do
-    erb "<div class='input-block-level form-signin'><a href='/auth/att' class='btn btn-primary btn-large input-block-level' >Login</a></div>", :layout=>:layout
+    erb "<div class='input-block-level form-signin'>
+    <a href='/auth/att' class='btn btn-primary btn-large input-block-level'>Login</a>
+    </div>", :layout=>:layout
   end
 
   get '/auth/:provider/callback' do
@@ -63,5 +67,5 @@ class WebrtcPhone < Sinatra::Base
     #TODO headers = response.headers
     response.body.to_s
   end
- 
+
 end

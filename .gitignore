@@ -14,3 +14,4 @@
 /trash/
 /public/uploads/
 .env*
+.DS_Store

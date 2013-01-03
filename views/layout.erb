@@ -2,20 +2,13 @@
   <head>
     <link href="//netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css" rel="stylesheet">
     <link href="//netdna.bootstrapcdn.com/bootswatch/2.1.1/spacelab/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="candybar.css">
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
     <script src="/att.js" type="text/javascript"></script>
+    <script src="/candybar.js"></script>
    
-    <link rel="stylesheet" href="/CandyBar/candybar.css">
-    <script src="/CandyBar/candybar.js"></script>
-    <script>
-        var cb = new CandyBar();
-            
-        document.addEventListener('DOMContentLoaded', function () {
-          cb.render();
-        }, false);
 
-    </script>
-    
     <style type="text/css">
       body {
         padding-top: 40px;
@@ -48,6 +41,10 @@
         padding: 7px 9px;
       }
 
+      .active{
+        border:3px dashed black;
+      }
+
     </style>
   </head>
   <body>
@@ -68,7 +65,7 @@
          // myscript.src = ('/jquery.min.js');
          // var s = document.getElementsByTagName('script')[0]; 
          // s.parentNode.insertBefore(myscript, s);
-         // console.log(myscript.src);         
+         // console.log(myscript.src);
         })();
       </script>
 
