@@ -18,27 +18,25 @@
     
     
 <script type="text/javascript" charset="utf-8">
-  var phono;
+  var phone;
   $(document).ready(function(){
     
     $("#fromuser").html("from: "+ localStorage.username + " "+  localStorage.phone_number );
-    phono = $.phono({
-      apiKey: "7826110523f1241fcfd001859a67128d",
-      connectionUrl: "http://gw.att.io:8080/http-bind",
-      phone: {
-            onIncomingCall: function(event) {
-              phono.call = event.call;
+    phone = $.att({
+      token: localStorage.access_token,
+      version: 'a3',
+      onIncomingCall: function(event) {
+              phone.call = event.call;
               alert("Incoming call");
-            }
       },
       onReady: function() {
         $("#call").attr("disabled", false);
         $("#status").html( 'ready' );
-        $('#debuglist').append('<li>registered: <a href=sip:'+ phono.sessionId+'>sip:'+ phono.sessionId+'</a></li>');
-        binderURL = 'http://binder.api.tfoundry.com/session/'+localStorage.phone_number+'/'+phono.sessionId;
+        $('#debuglist').append('<li>registered: <a href=sip:'+ phone.sessionId+'>sip:'+ phone.sessionId+'</a></li>');
+        binderURL = 'http://binder.api.tfoundry.com/session/'+localStorage.phone_number+'/'+phone.sessionId;
         $.ajax({
                 url:  binderURL,
-                // data: {url: 'http://gw.att.io:8080/http-bind/session/'+your_number+'/'+phono.sessionId},
+                // data: {url: 'http://gw.att.io:8080/http-bind/session/'+your_number+'/'+phone.sessionId},
                 type: "POST"
                 }).done(function(data, status) {
                   console.log("Registerd " + binderURL);
@@ -58,7 +56,8 @@
       event.preventDefault();
       $("#status").html("Dialing");
       cb.setState('active');
-      phono.phone.dial($("#number_to_dial").val(), {
+      phone.createCall('sip:'+$("#number_to_dial").val()+'@12.208.176.26', {
+        callerId: localStorage.phone_number+"@phono06.tfoundry.com",
         onRing: function() {
           $("#status").html("Ringing");
           cb.setState('incoming')

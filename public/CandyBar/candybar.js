@@ -29,7 +29,7 @@
     return buf.join("");
 }
 
-  var phoney = window.att && window.att.phoneNumber || window.phoney;
+  var phoney = window.ATT && window.ATT.phoneNumber || window.phoney;
 
   var CandyBar = function (options) {
     var spec = options || {};
@@ -205,6 +205,16 @@
         self.call.hangup && self.call.hangup();
         self.call.end && self.call.end();
         delete self.call;
+      }
+    };
+    self.answer = function () {
+      if (self.call) {
+        self.call.answer();
+      }
+    };
+    self.cancel = function () {
+      if (self.call) {
+        self.call.hangup();
       }
     }
   };

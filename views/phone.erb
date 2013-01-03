@@ -16,19 +16,19 @@
     </div> <!-- /container -->
     
 <script type="text/javascript" charset="utf-8">
+
+  var att;
   $(document).ready(function(){
 
     var accessToken = localStorage['access_token'];
     var selfNumber = localStorage.phone_number;
-    var version = "a1";
-
-    var att;
-    var call;
-    
     att = $.att({
-      version: version,
       apiKey: accessToken,
       onReady: function() {
+        $("#call").attr("disabled", false);
+        $("#status").html( 'ready' );
+        $('#debuglist').append('<li>registered: <a href=sip:'+ att.phone.sessionId+'>sip:'+ att.phone.sessionId+'</a></li>');
+        $('#debuglist').append('<li>bound session to: '+ localStorage.phone_number +"</li>");
         console.log("att on ready...");
       },
       onUnready: function() {
@@ -39,18 +39,9 @@
       // Phone API Configuration
       phone: {
         // Event Handlers
-        onIncomingCall: function(event) {
-          call = event.call;
+        onIncomingCall: function(call) {
+          window.activeCall = call;
           console.log("Incoming Call: " + call.id);
-          call.bind({ 
-            onHangup: function(event) { 
-              console.log("Hangup Call...");
-              toIdleState();
-            }, 
-            onError: function(event) { 
-              alert("Incoming call error:" + event); 
-            }
-          });
           // Prepare to answer the call
           toAnswerState();
         },
@@ -59,6 +50,13 @@
         }
       }  //phone
     }); //att
-  
+    window.candybar = new CandyBar({phone: att});
+    candybar.render();
   }); //ready
+
+  $("#call").click(function(event) {
+    event.preventDefault();
+    $("#status").html("Dialing");
+    att.phone.dial($("#number_to_dial").val());
+  });
 </script>
