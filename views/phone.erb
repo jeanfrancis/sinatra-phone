@@ -60,6 +60,7 @@
   $("#call").click(function(event) {
     event.preventDefault();
     $("#status").html("Dialing");
+    console.log("-------------------)");
     att.phone.dial($("#number_to_dial").val());
   });
 </script>
