@@ -24,6 +24,7 @@
     var selfNumber = localStorage.phone_number;
     att = $.att({
       apiKey: accessToken,
+      version: '<%= @version %>',
       onReady: function() {
         $("#call").attr("disabled", false);
         $("#status").html( 'ready' );
