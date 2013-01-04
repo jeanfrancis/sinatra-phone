@@ -35,9 +35,13 @@ class WebrtcPhone < Sinatra::Base
 
 
   get "/" do
-    erb "<div class='input-block-level form-signin'>
-    <a href='/auth/att' class='btn btn-primary btn-large input-block-level'>Login</a>
-    </div>", :layout=>:layout
+    if session[:uid]
+      redirect "/phone"
+    else
+      erb "<div class='input-block-level form-signin'>
+      <a href='/auth/att' class='btn btn-primary btn-large input-block-level'>Login</a>
+      </div>", :layout=>:layout
+    end
   end
 
   get '/auth/:provider/callback' do
@@ -52,6 +56,11 @@ class WebrtcPhone < Sinatra::Base
   get "/phone" do
     @version=params[:version] || "a3"
     erb :phone
+  end
+  
+  get "/logout" do
+    session.clear
+    redirect "/"
   end
   
   get "/candybar" do
