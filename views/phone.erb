@@ -8,7 +8,8 @@
           <i class='icon-phone'></i> <span id="status">Registering...</span>
         </button>
         <br>
-        <a href="/logout" class='btn btn-link'><i class='icon-logout'></i> logout</a>
+        <a href="/logout" class='btn btn-link'><i class='icon-logout'></i> Logout</a>
+        <a href="https://auth.tfoundry.com/" class='btn btn-link'><i class='icon-logout'></i> Account</a>
             
       </form>
       <pre id='debuglog'>
@@ -26,13 +27,13 @@
     var selfNumber = localStorage.phone_number;
     var call;
     var att;
-    if (localStorage.phone_number) {
-      $("#fromuser").html("from "+localStorage.phone_number)
-    };
+
     att = $.att({
       apiKey: accessToken,
-      version: '<%= @version %>',
       onReady: function() {
+        if (localStorage.phone_number) {
+          $("#fromuser").html("from "+(localStorage.phone_number));
+        };
         $("#call").attr("disabled", false);
         $("#status").html( 'ready' );
         $('#debuglist').append('<li>registered: <a href=sip:'+ att.phone.sessionId+'>sip:'+ att.phone.sessionId+'</a></li>');

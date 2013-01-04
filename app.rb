@@ -54,7 +54,7 @@ class WebrtcPhone < Sinatra::Base
   end
   
   get "/phone" do
-    @version=params[:version] || "a3"
+    # @version=params[:version] || "a3"
     erb :phone
   end
   
