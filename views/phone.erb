@@ -10,7 +10,9 @@
         <br>
         <a href="/logout" class='btn btn-link'><i class='icon-logout'></i> Logout</a>
         <a href="https://auth.tfoundry.com/" class='btn btn-link'><i class='icon-logout'></i> Account</a>
-            
+        <a href="#hangup" class='btn btn-danger btn-link' id="hangupcall"><i class='icon-logout'></i> Hangup</a>
+
+
       </form>
       <pre id='debuglog'>
         <ol id='debuglist'></ol>
@@ -26,46 +28,76 @@
     var accessToken = localStorage.access_token;
     var selfNumber = localStorage.phone_number;
     var call;
-    var att;
 
-    att = $.att({
+    window.att = $.att({
       apiKey: accessToken,
       onReady: function() {
         if (localStorage.phone_number) {
           $("#fromuser").html("from "+(localStorage.phone_number));
         };
         $("#call").attr("disabled", false);
-        $("#status").html( 'ready' );
+        $("#status").html( ' Dial ' );
         $('#debuglist').append('<li>registered: <a href=sip:'+ att.phone.sessionId+'>sip:'+ att.phone.sessionId+'</a></li>');
-        $('#debuglist').append('<li>bound session to: '+ localStorage.phone_number +"</li>");
-        $('#status').html('ready');
-        
+ 
         $("#call").click(function(event) {
           event.preventDefault();
           $("#status").html("Dialing");
-          console.log("-------------------)");
-          att.phone.dial($("#number_to_dial").val());
+          console.debug("-------------------");
+
+
+          att.phone.dial( $( "#number_to_dial").val(), {
+             // Events
+             onRing: function() {
+               $("#status").html("Ringing");
+               $('#hangupcall').show();
+             },
+             onAnswer: function() {
+                $("#status").html("Answered");
+                $('#hangupcall').show().click(call.hangup());
+                
+             },
+             onHangup: function() {
+               console.log("Hangup");
+               $("#status").html(" Dial.");
+               $('#hangupcall').hide();
+               
+             },
+             onError: function() {
+               console.log("Call Error");
+               $("#status").html("Call Error");
+             }})
+ 
         });
         
       },
+   
       onUnready: function() {
-        console.log("att disconnected...");
+       $("#call").attr("disabled", true);
+       $("#status").html( 'disconnected' );
       },
       
       // Phone API Configuration
       phone: {
         // Event Handlers
         onIncomingCall: function(call) {
+         $('#hangupcall').show().click(call.hangup());
           window.activeCall = call;
-          console.log("Incoming Call: " + call.id);
-          // Prepare to answer the call
-          toAnswerState();
+          $('#status').html("Incoming Call: " + call.id);
+          $("#call").click(function() {
+            $("#status").html( call.id );
+            call.answer();
+          });
+          
+
         },
         onError: function(event) {
           console.log("Phone error: " + e.reason);
         }
       }  //phone
+      
+
     }); //att
+    
 
     window.candybar = new CandyBar({phone: att});
     candybar.render();
