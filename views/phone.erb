@@ -7,12 +7,10 @@
         <button class="btn btn-large btn-primary input-block-level" type="submit" value="registering..." id="call" disabled="true"  class="btn btn-large btn-primary" >
           <i class='icon-phone'></i> <span id="status">Registering...</span>
         </button>
-        <button class="btn btn-large btn-primary input-block-level" type="submit" value="registering..." id="incomingCall"  class="btn btn-large btn-primary" style="display: none">
-          <i class='icon-phone'></i> <span id="incomingStatus">Registering...</span>
-        </button>
         <br>
         <a href="/logout" class='btn btn-link'><i class='icon-logout'></i> Logout</a>
         <a href="https://auth.tfoundry.com/" class='btn btn-link'><i class='icon-logout'></i> Account</a>
+        <a href="#answer" disabled="true"  class='btn btn-danger btn-link' id="answercall"><i class='icon-logout'></i> Answer</a>
         <a href="#hangup" class='btn btn-danger btn-link' id="hangupcall"><i class='icon-logout'></i> Hangup</a>
 
 
@@ -31,7 +29,7 @@
     var accessToken = localStorage.access_token;
     var selfNumber = localStorage.phone_number;
     var call;
-    $("#incomingCall").click(function() {
+    $("#answercall").click(function() {
       window.activeCall.answer();
     });
     $('#hangupcall').click(function(){window.activeCall.hangup()});
@@ -45,7 +43,7 @@
         $("#call").attr("disabled", false);
         $("#status").html( ' Dial ' );
         $('#hangupcall').hide();
-        $('#debuglist').append('<li>registered: <a href=sip:'+ att.phone.sessionId+'>sip:'+ att.phone.sessionId+'</a></li>');
+        $('#debuglist').append('<li>registered sessionid: <a href='+ att.phone.sessionId+'>'+ att.phone.sessionId+'</a></li>');
  
         $("#call").click(function(event) {
           event.preventDefault();
@@ -67,7 +65,8 @@
                console.log("Hangup");
                $("#status").html(" Dial.");
                $('#hangupcall').hide();
-               $("#call").attr("disabled", true);
+               $("#call").attr("disabled", false);
+
              },
              onError: function() {
                console.log("Call Error");
@@ -87,7 +86,8 @@
       phone: {
         // Event Handlers
         onIncomingCall: function(call) {
-          $("#call").hide();
+          $("#answercall").attr("disabled", false);
+          $("#call").attr("disabled", true);
           $("#incomingCall").show();
           $('#incomingStatus').html("Incoming Call: " + call.id);
           window.activeCall = call;
@@ -95,18 +95,22 @@
             onAnswer: function(){
               $('#incomingStatus').html("Active Call: " + call.id);
               $('#hangupcall').show();
+              $("#answercall").attr("disabled", true);
+
             },
             onHangup: function(){
               $("#incomingCall").hide();
               $("#call").show();
               $('#hangupcall').hide();
+              $("#answercall").attr("disabled", true);
+
             }
 
           });
 
         },
         onHangup: function() {
-          alert("onHangup");
+          $("#call").attr("disabled", false);
           console.log("Hangup");
 
         },
