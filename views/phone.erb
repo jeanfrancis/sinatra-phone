@@ -4,8 +4,11 @@
         <h4 id='fromuser'></h4>
         <label for="Number to Dial">To </label>
           <input type="text" name="number_to_dial" value="1-800-444-4444" id="number_to_dial" class="input-block-level" placeholder="1-800-444-4444" autofocus>
-        <button class="btn btn-large btn-primary input-block-level" type="submit" value="registering..." id="call" disabled="true"  class="btn btn-large btn-primary">
+        <button class="btn btn-large btn-primary input-block-level" type="submit" value="registering..." id="call" disabled="true"  class="btn btn-large btn-primary" >
           <i class='icon-phone'></i> <span id="status">Registering...</span>
+        </button>
+        <button class="btn btn-large btn-primary input-block-level" type="submit" value="registering..." id="incomingCall"  class="btn btn-large btn-primary" style="display: none">
+          <i class='icon-phone'></i> <span id="incomingStatus">Registering...</span>
         </button>
         <br>
         <a href="/logout" class='btn btn-link'><i class='icon-logout'></i> Logout</a>
@@ -28,39 +31,43 @@
     var accessToken = localStorage.access_token;
     var selfNumber = localStorage.phone_number;
     var call;
-
+    $("#incomingCall").click(function() {
+      window.activeCall.answer();
+    });
+    $('#hangupcall').click(function(){window.activeCall.hangup()});
     window.att = $.att({
       apiKey: accessToken,
       onReady: function() {
+
         if (localStorage.phone_number) {
           $("#fromuser").html("from "+(localStorage.phone_number));
         };
         $("#call").attr("disabled", false);
         $("#status").html( ' Dial ' );
+        $('#hangupcall').hide();
         $('#debuglist').append('<li>registered: <a href=sip:'+ att.phone.sessionId+'>sip:'+ att.phone.sessionId+'</a></li>');
  
         $("#call").click(function(event) {
           event.preventDefault();
+          $("#call").attr("disabled", true);
           $("#status").html("Dialing");
           console.debug("-------------------");
+          $('#hangupcall').show();
 
-
-          att.phone.dial( $( "#number_to_dial").val(), {
+          window.activeCall=att.phone.dial( $( "#number_to_dial").val(), {
              // Events
              onRing: function() {
                $("#status").html("Ringing");
-               $('#hangupcall').show();
              },
              onAnswer: function() {
                 $("#status").html("Answered");
-                $('#hangupcall').show().click(call.hangup());
-                
+
              },
              onHangup: function() {
                console.log("Hangup");
                $("#status").html(" Dial.");
                $('#hangupcall').hide();
-               
+               $("#call").attr("disabled", true);
              },
              onError: function() {
                console.log("Call Error");
@@ -80,14 +87,27 @@
       phone: {
         // Event Handlers
         onIncomingCall: function(call) {
-         $('#hangupcall').show().click(call.hangup());
+          $("#call").hide();
+          $("#incomingCall").show();
+          $('#incomingStatus').html("Incoming Call: " + call.id);
           window.activeCall = call;
-          $('#status').html("Incoming Call: " + call.id);
-          $("#call").click(function() {
-            $("#status").html( call.id );
-            call.answer();
+          call.bind({
+            onAnswer: function(){
+              $('#incomingStatus').html("Active Call: " + call.id);
+              $('#hangupcall').show();
+            },
+            onHangup: function(){
+              $("#incomingCall").hide();
+              $("#call").show();
+              $('#hangupcall').hide();
+            }
+
           });
-          
+
+        },
+        onHangup: function() {
+          alert("onHangup");
+          console.log("Hangup");
 
         },
         onError: function(event) {
@@ -99,8 +119,8 @@
     }); //att
     
 
-    window.candybar = new CandyBar({phone: att});
-    candybar.render();
+    //window.candybar = new CandyBar({phone: att});
+    //candybar.render();
     
   }); //ready
 
